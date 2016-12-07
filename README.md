@@ -8,6 +8,8 @@
 
 > LDAP authentication strategy for feathers-authentication using Passport
 
+**Work in progress. Not ready for use.**
+
 ## Installation
 
 ```
