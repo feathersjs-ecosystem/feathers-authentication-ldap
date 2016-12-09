@@ -25,12 +25,18 @@ describe('feathers-authentication-ldap', () => {
     expect(typeof ldapAuth.defaults).to.equal('object');
   });
 
-  describe('defaultValidation fn', () => {
-    it('should cb without error', function(done) {
-      ldapAuth.Verifier(null, {name: 'test'}, done);
+  describe('defaultVerifier fn', () => {
+    it('should cb without error', function (done) {
+      ldapAuth.Verifier({body: {username: 'test'}}, {name: 'test'}, done);
     });
   });
 
+  describe('jwtVerifier fn', () => {
+    it('should cb without error', function (done) {
+      let jwtVerifier = new ldapAuth.JWTVerifier();
+      jwtVerifier.verify({body: {username: 'test'}}, {name: 'test'}, done);
+    });
+  });
 
   describe('initialization', () => {
     let app;
@@ -68,7 +74,5 @@ describe('feathers-authentication-ldap', () => {
 
       app.passport.options.restore();
     });
-
   });
-
 });

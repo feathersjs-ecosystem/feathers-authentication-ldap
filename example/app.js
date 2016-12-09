@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 const errorHandler = require('feathers-errors/handler');
 const errors = require('feathers-errors');
 const auth = require('feathers-authentication');
+const jwt = require('feathers-authentication-jwt');
 const ldap = require('../lib/index');
 
 // Initialize the application
@@ -25,14 +26,24 @@ app.set('auth', {
   }
 });
 
+
 app.configure(rest())
   .configure(hooks())
   // Needed for parsing bodies (login)
   .use(bodyParser.json())
   .use(bodyParser.urlencoded({ extended: true }))
 
-  // Configure feathers-authentication with ldap
+  // Configure feathers-authentication
   .configure(auth(app.get('auth')))
+
+  // Enable JWT auth
+  .configure(jwt({
+    // Optional: Overwrite the JWT Verifier to disable
+    // population from user service
+    Verifier: ldap.JWTVerifier
+  }))
+
+  // Enable LDAP auth
   .configure(ldap({
     // Optional: overwrite Verifier function
     Verifier: function afterLdapAuth(req, user, done) {
@@ -41,7 +52,7 @@ app.configure(rest())
 
       // add custom verification logic
       if(true) {
-        return done(null, user);
+        return done(null, user, {username: req.body.username});
       } else {
         const err = new errors.Forbidden('Youre are not allowed');
         return done(err);
@@ -57,7 +68,16 @@ app.configure(rest())
 app.service('authentication').hooks({
   before: {
     create: [
-      auth.hooks.authenticate('ldap')
+      auth.hooks.authenticate('ldap'),
+      function(hook) {
+        // store some user data in JWT payload
+        hook.data.payload = {
+          uid: hook.params.user.uid,
+          name: hook.params.user.cn,
+          mail: hook.params.user.mail
+        };
+        return Promise.resolve(hook);
+      }
     ]
   }
 });

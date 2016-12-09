@@ -26,7 +26,8 @@ app.configure(authentication(settings));
 app.configure(ldap());
 ```
 
-This will pull from your global `auth` object in your config file. It will also mix in the following defaults, which should be customized.
+This will pull from your global `auth` object in your config file.
+It will also mix in the following defaults, which should be customized.
 
 #### Default Options
 
@@ -45,14 +46,21 @@ This will pull from your global `auth` object in your config file. It will also 
 }
 ```
 
-### Verifier function
+### LDAP Verifier function
 
 The `Verifier` function is the passport verify callback. In this module it gets called after the LDAP
 authentication success. By default it does nothing but you can overwrite it to make furthers validation
-checks. See [examples/app.js](examples/app.js#L46). 
+checks. See [examples/app.js](examples/app.js#L56). 
 
+### Useage with `feathers-authentication-jwt`
 
-## Example
+To authenticate following requests using the jwt use `feathers-authentication-jwt`.  
+This plugin depends on the `users` Service to populate the user entity.
+To get rid of this dependency and store necessary data in the JWT payload see
+[examples/app.js](examples/app.js#L47) and [examples/app.js](examples/app.js#L79).
+ 
+
+## Simple Example
 
 Here's an example of a Feathers server that uses `feathers-authentication-ldap`. 
 

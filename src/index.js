@@ -17,10 +17,18 @@ const defaults = {
   passReqToCallback: true
 };
 
-function defaultVerifier (req, user, done) {
+function defaultLdapVerifier (req, user, done) {
   // no further validation, LDAP Account is valid
   debug('Received ldap user:', user);
-  done(null, user);
+  done(null, user, {username: req.body.username});
+}
+
+class JWTVerifier {
+  // JWT Verifier replacement
+  // to disable population from user service
+  verify (req, payload, done) {
+    done(null, { payload });
+  }
 }
 
 // Export ldap-auth init function
@@ -28,6 +36,7 @@ export default function init (options = {}) {
   return function ldapAuth () {
     const app = this;
     const _super = app.setup;
+
     if (!app.passport) {
       throw new Error(`Can not find app.passport. Did you initialize feathers-authentication before feathers-authentication-ldap?`);
     }
@@ -39,11 +48,14 @@ export default function init (options = {}) {
     const localSettings = merge({}, defaults, localOptions, omit(options, ['Verifier']));
 
     // make verifier function overwriteable
-    let verifier = defaultVerifier;
+    let verifier = defaultLdapVerifier;
     if (options.Verifier) verifier = options.Verifier;
 
     // plugin setup: register strategy in feathers passport
     app.setup = function () {
+      // be sure feathers setup was called
+      let result = _super.apply(this, arguments);
+
       if (!verifier) throw new Error(`Your verifier must be a function: Verifyer(request, user, done)`);
 
       // Register 'ldap' strategy with passport
@@ -51,8 +63,7 @@ export default function init (options = {}) {
       app.passport.use(localSettings.name, new LdapStrategy(localSettings, verifier));
       app.passport.options(localSettings.name, localSettings); // do we need this ??
 
-      // TODO: explain
-      return _super.apply(this, arguments);
+      return result;
     };
   };
 }
@@ -60,5 +71,6 @@ export default function init (options = {}) {
 // Exposed Modules
 Object.assign(init, {
   defaults,
-  Verifier: defaultVerifier
+  Verifier: defaultLdapVerifier,
+  JWTVerifier
 });
