@@ -31,3 +31,8 @@ node_modules
 
 # The compiled/babelified modules
 lib/
+
+# IDE
+.idea
+
+temp
