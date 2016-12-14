@@ -1,7 +1,8 @@
 import Debug from 'debug';
 import merge from 'lodash.merge';
 import omit from 'lodash.omit';
-import {Strategy as LdapStrategy} from 'passport-ldapauth';
+import DefaultVerifier from './verifier';
+import { Strategy as LdapStrategy } from 'passport-ldapauth';
 
 const debug = Debug('feathers-authentication-ldap');
 const defaults = {
@@ -16,12 +17,6 @@ const defaults = {
   },
   passReqToCallback: true
 };
-
-function defaultLdapVerifier (req, user, done) {
-  // no further validation, LDAP Account is valid
-  debug('Received ldap user:', user);
-  done(null, user, {username: req.body.username});
-}
 
 class JWTVerifier {
   // JWT Verifier replacement
@@ -41,27 +36,27 @@ export default function init (options = {}) {
       throw new Error(`Can not find app.passport. Did you initialize feathers-authentication before feathers-authentication-ldap?`);
     }
 
-    // Construct localSettings for passport ldap strategy
+    // Construct ldapSettings for passport ldap strategy
     let name = options.name || defaults.name;
     let authOptions = app.get('auth') || {};
-    let localOptions = authOptions[name] || {};
-    const localSettings = merge({}, defaults, localOptions, omit(options, ['Verifier']));
-
-    // make verifier function overwriteable
-    let verifier = defaultLdapVerifier;
-    if (options.Verifier) verifier = options.Verifier;
+    let ldapOptions = authOptions[name] || {};
+    const ldapSettings = merge({}, defaults, ldapOptions, omit(options, ['Verifier']));
+    const Verifier = options.Verifier || DefaultVerifier;
 
     // plugin setup: register strategy in feathers passport
     app.setup = function () {
       // be sure feathers setup was called
       let result = _super.apply(this, arguments);
+      let verifier = new Verifier(app, ldapSettings);
 
-      if (!verifier) throw new Error(`Your verifier must be a function: Verifyer(request, user, done)`);
+      if (!verifier.verify) {
+        throw new Error(`Your verifier must implement a 'verify' function. It should have the same signature as function(request, user, done)`);
+      }
 
       // Register 'ldap' strategy with passport
-      debug('Registering ldap authentication strategy with options:', localSettings);
-      app.passport.use(localSettings.name, new LdapStrategy(localSettings, verifier));
-      app.passport.options(localSettings.name, localSettings); // do we need this ??
+      debug('Registering ldap authentication strategy with options:', ldapSettings);
+      app.passport.use(ldapSettings.name, new LdapStrategy(ldapSettings, verifier.verify.bind(verifier)));
+      app.passport.options(ldapSettings.name, ldapSettings); // do we need this ??
 
       return result;
     };
@@ -71,6 +66,6 @@ export default function init (options = {}) {
 // Exposed Modules
 Object.assign(init, {
   defaults,
-  Verifier: defaultLdapVerifier,
+  Verifier: DefaultVerifier,
   JWTVerifier
 });
