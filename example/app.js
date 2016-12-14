@@ -26,6 +26,20 @@ app.set('auth', {
   }
 });
 
+class CustomVerifier {
+  verify(req, user, done) {
+    // ldap auth was successful
+    console.log('LDAP User:', user);
+
+    // add custom verification logic
+    if(true) {
+      return done(null, user, {username: req.body.username});
+    } else {
+      const err = new errors.Forbidden('Youre are not allowed');
+      return done(err);
+    }
+  }
+}
 
 app.configure(rest())
   .configure(hooks())
@@ -46,18 +60,7 @@ app.configure(rest())
   // Enable LDAP auth
   .configure(ldap({
     // Optional: overwrite Verifier function
-    Verifier: function afterLdapAuth(req, user, done) {
-      // ldap auth was successful
-      console.log('LDAP User:', user);
-
-      // add custom verification logic
-      if(true) {
-        return done(null, user, {username: req.body.username});
-      } else {
-        const err = new errors.Forbidden('Youre are not allowed');
-        return done(err);
-      }
-    }
+    Verifier: CustomVerifier
   }))
 
   .use(errorHandler());

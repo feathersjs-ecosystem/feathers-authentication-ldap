@@ -27,7 +27,8 @@ describe('feathers-authentication-ldap', () => {
 
   describe('defaultVerifier fn', () => {
     it('should cb without error', function (done) {
-      ldapAuth.Verifier({body: {username: 'test'}}, {name: 'test'}, done);
+      let verifier = new ldapAuth.Verifier();
+      verifier.verify({body: {username: 'test'}}, {name: 'test'}, done);
     });
   });
 
