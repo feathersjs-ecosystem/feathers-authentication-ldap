@@ -8,7 +8,6 @@
 
 > LDAP authentication strategy for feathers-authentication using Passport
 
-**Work in progress. Not ready for use.**
 
 ## Installation
 
@@ -18,9 +17,50 @@ npm install feathers-authentication-ldap --save
 
 ## Documentation
 
-Please refer to the [feathers-authentication-ldap documentation](http://docs.feathersjs.com/) for more details.
+### Usage
 
-## Complete Example
+In most cases initializing the `feathers-authentication-ldap` module is as simple as doing this:
+
+```js
+app.configure(authentication(settings));
+app.configure(ldap());
+```
+
+This will pull from your global `auth` object in your config file.
+It will also mix in the following defaults, which should be customized.
+
+#### Default Options
+
+```js
+{
+  name: 'ldap',
+  server: {
+    url: 'ldap://localhost:389',
+    bindDn: 'cn=anonymous',
+    bindCredentials: '', // bindpw
+    searchBase: 'dc=de',
+    searchFilter: '(uid={{username}})',
+    searchAttributes: null // optional array of props to fetch from ldap
+  },
+  passReqToCallback: true
+}
+```
+
+### LDAP Verifier function
+
+The `Verifier` function is the passport verify callback. In this module it gets called after the LDAP
+authentication success. By default it does nothing but you can overwrite it to make furthers validation
+checks. See [examples/app.js](examples/app.js#L56). 
+
+### Useage with `feathers-authentication-jwt`
+
+To authenticate following requests using the jwt use `feathers-authentication-jwt`.  
+This plugin depends on the `users` Service to populate the user entity.
+To get rid of this dependency and store necessary data in the JWT payload see
+[examples/app.js](examples/app.js#L47) and [examples/app.js](examples/app.js#L79).
+ 
+
+## Simple Example
 
 Here's an example of a Feathers server that uses `feathers-authentication-ldap`. 
 
@@ -30,22 +70,50 @@ const rest = require('feathers-rest');
 const hooks = require('feathers-hooks');
 const bodyParser = require('body-parser');
 const errorHandler = require('feathers-errors/handler');
-const plugin = require('feathers-authentication-ldap');
+const errors = require('feathers-errors');
+const auth = require('feathers-authentication');
+const ldap = require('feathers-authentication-ldap');
 
 // Initialize the application
-const app = feathers()
-  .configure(rest())
+const app = feathers();
+
+// Load configuration, usually done by feathers-configuration
+app.set('auth', {
+  secret: "super secret",
+  ldap: {
+    server: {
+      url: 'ldap://localhost:389',
+      bindDn: 'cn=anonymous',
+      bindCredentials: '', // bindpw
+      searchBase: 'dc=de',
+      searchFilter: '(uid={{username}})'
+    }
+  }
+});
+
+app.configure(rest())
   .configure(hooks())
-  // Needed for parsing bodies (login)
   .use(bodyParser.json())
   .use(bodyParser.urlencoded({ extended: true }))
-  // Initialize your feathers plugin
-  .use('/plugin', plugin())
+
+  // Configure feathers-authentication with ldap
+  .configure(auth(app.get('auth')))
+  .configure(ldap())
+
   .use(errorHandler());
 
-app.listen(3030);
+// Authenticate the user using the LDAP strategy
+// and if successful return a JWT.
+app.service('authentication').hooks({
+  before: {
+    create: [
+      auth.hooks.authenticate('ldap')
+    ]
+  }
+});
 
-console.log('Feathers app started on 127.0.0.1:3030');
+app.listen(3030);
+console.log('Feathers authentication with LDAP auth started on 127.0.0.1:3030');
 ```
 
 ## License
