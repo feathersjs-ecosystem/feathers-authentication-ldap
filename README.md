@@ -46,16 +46,15 @@ It will also mix in the following defaults, which should be customized.
 }
 ```
 
-### LDAP Verifier function
+### LDAP Verifier class
 
-The `Verifier` function is the passport verify callback. In this module it gets called after the LDAP
-authentication success. By default it does nothing but you can overwrite it to make furthers validation
+The `Verifier` class has a `verify` function that is the passport verify callback. In this module it gets called after LDAP authentication succeeds. By default it does nothing but you can overwrite it to make furthers validation
 checks. See [examples/app.js](examples/app.js#L56). 
 
-### Useage with `feathers-authentication-jwt`
+### Usage with `feathers-authentication-jwt`
 
-To authenticate following requests using the jwt use `feathers-authentication-jwt`.  
-This plugin depends on the `users` Service to populate the user entity.
+To authenticate following requests using the jwt use `feathers-authentication-jwt`.  This plugin depends on the `users` Service to populate the user entity.
+
 To get rid of this dependency and store necessary data in the JWT payload see
 [examples/app.js](examples/app.js#L47) and [examples/app.js](examples/app.js#L79).
  

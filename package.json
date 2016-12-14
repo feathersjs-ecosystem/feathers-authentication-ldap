@@ -53,7 +53,6 @@
   },
   "dependencies": {
     "debug": "^2.3.3",
-    "feathers-authentication-jwt": "^0.2.0",
     "passport-ldapauth": "^0.6.0"
   },
   "devDependencies": {
@@ -64,6 +63,7 @@
     "body-parser": "^1.15.2",
     "chai": "^3.5.0",
     "feathers-authentication": "^1.0.0-beta-2",
+    "feathers-authentication-jwt": "^0.2.0",
     "feathers-memory": "^1.0.1",
     "feathers-rest": "^1.5.2",
     "feathers-hooks": "^1.7.0",
