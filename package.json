@@ -1,7 +1,7 @@
 {
   "name": "feathers-authentication-ldap",
   "description": "LDAP authentication strategy for feathers-authentication using Passport",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "homepage": "https://github.com/feathersjs/feathers-authentication-ldap",
   "main": "lib/",
   "keywords": [
