@@ -49,7 +49,35 @@ It will also mix in the following defaults, which should be customized.
 ### LDAP Verifier class
 
 The `Verifier` class has a `verify` function that is the passport verify callback. In this module it gets called after LDAP authentication succeeds. By default it does nothing but you can overwrite it to make furthers validation
-checks. See [examples/app.js](examples/app.js#L56). 
+checks. See [examples/app.js](examples/app.js#L56).
+
+
+### Asynchronous LDAP Strategy configuration
+
+The `getLDAPConfiguration` option can be included in the `server` settings to define an asynchronous function that dynamically adjusts the LDAP server settings. This makes it possible to take advantage of the passport LDAP authentication module's option for dynamic configuration in place of a static configuration for the LDAP Strategy.
+
+The server options returned in a callback by the `getLDAPConfiguration` function will override the default and static settings prior to the LDAP bind step.
+
+I.E. The credentials passed in an authentication request can be used as the bind credentials in an Active Directory setup that does not include common bind credentials...
+
+```javascript
+app.configure(authentication(config))
+.configure(jwt())
+.configure(local())
+.configure(ldap({
+  // asynchronous function used to pass alternate LDAP settings
+  getLDAPConfiguration: function(req, callback) {
+    var opts = {
+      server: {
+        bindDn: req.body.username,
+        bindCredentials: req.body.password
+      }
+    };
+    callback(null, opts);
+  }
+}));
+```
+
 
 ### Usage with `feathers-authentication-jwt`
 
@@ -57,11 +85,11 @@ To authenticate following requests using the jwt use `feathers-authentication-jw
 
 To get rid of this dependency and store necessary data in the JWT payload see
 [examples/app.js](examples/app.js#L47) and [examples/app.js](examples/app.js#L79).
- 
+
 
 ## Simple Example
 
-Here's an example of a Feathers server that uses `feathers-authentication-ldap`. 
+Here's an example of a Feathers server that uses `feathers-authentication-ldap`.
 
 ```js
 const feathers = require('feathers');

@@ -40,8 +40,18 @@ export default function init (options = {}) {
     let name = options.name || defaults.name;
     let authOptions = app.get('auth') || {};
     let ldapOptions = authOptions[name] || {};
-    const ldapSettings = merge({}, defaults, ldapOptions, omit(options, ['Verifier']));
+    const ldapSettings = merge({}, defaults, ldapOptions, omit(options, ['Verifier', 'getLDAPConfiguration']));
     const Verifier = options.Verifier || DefaultVerifier;
+    let getLDAPConfiguration = function(req, callback) {
+      if (options.getLDAPConfiguration) {
+        options.getLDAPConfiguration(req, function (err, xo) {
+          callback(null, merge(ldapSettings, xo));
+        });
+      }
+      else {
+        callback(null, ldapSettings);
+      }
+    };
 
     // plugin setup: register strategy in feathers passport
     app.setup = function () {
@@ -55,7 +65,7 @@ export default function init (options = {}) {
 
       // Register 'ldap' strategy with passport
       debug('Registering ldap authentication strategy with options:', ldapSettings);
-      app.passport.use(ldapSettings.name, new LdapStrategy(ldapSettings, verifier.verify.bind(verifier)));
+      app.passport.use(ldapSettings.name, new LdapStrategy(getLDAPConfiguration, verifier.verify.bind(verifier)));
       app.passport.options(ldapSettings.name, ldapSettings); // do we need this ??
 
       return result;
