@@ -54,27 +54,26 @@ checks. See [examples/app.js](examples/app.js#L56).
 
 ### Asynchronous LDAP Strategy configuration
 
-The `getLDAPConfiguration` option can be included in the `server` settings to define an asynchronous function that dynamically adjusts the LDAP server settings. This makes it possible to take advantage of the passport LDAP authentication module's option for dynamic configuration in place of a static configuration for the LDAP Strategy.
+Per request configuration of the LDAP strategy is supported by taking advantage of
+the passport-ldapauth [asynchronous configuration retrieval](https://github.com/vesse/passport-ldapauth#asynchronous-configuration-retrieval)
+feature.
 
-The server options returned in a callback by the `getLDAPConfiguration` function will override the default and static settings prior to the LDAP bind step.
+In place of the options a function can be passed when initializing the feathers-authentication-ldap
+module. This function will be called with the authentication request object and it should
+return a promise that resolves the altered options. These altered options will be merged with
+the default and static settings.
 
-I.E. The credentials passed in an authentication request can be used as the bind credentials in an Active Directory setup that does not include common bind credentials...
+I.E. The credentials passed in an authentication request can be used as the bind credentials
+in an Active Directory setup that does not include common bind credentials...
 
 ```javascript
 app.configure(authentication(config))
 .configure(jwt())
 .configure(local())
-.configure(ldap({
-  // asynchronous function used to pass alternate LDAP settings
-  getLDAPConfiguration: function(req, callback) {
-    var opts = {
-      server: {
-        bindDn: req.body.username,
-        bindCredentials: req.body.password
-      }
-    };
-    callback(null, opts);
-  }
+.configure(ldap( function (req) {
+  return new Promise(function (resolve, reject) {
+    resolve({ server: { bindDn: req.body.username, bindCredentials: req.body.password } });
+  });
 }));
 ```
 
