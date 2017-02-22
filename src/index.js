@@ -37,7 +37,7 @@ export default function init (options = {}) {
     }
 
     // Construct ldapSettings for passport ldap strategy
-    let name = options.name || defaults.name;
+    let name = (typeof(options) !== 'function' && options.name) || defaults.name;
     let authOptions = app.get('auth') || {};
     let ldapOptions = authOptions[name] || {};
     const ldapSettings = merge({}, defaults, ldapOptions, (typeof options === 'function' ? {} : omit(options, ['Verifier'])));
