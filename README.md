@@ -115,6 +115,14 @@ app.listen(3030);
 console.log('Feathers authentication with LDAP auth started on 127.0.0.1:3030');
 ```
 
+```shell
+# Request a token
+curl -H "Content-Type: application/json" \
+     -X POST \
+     -d '{"username":"ldap-user@example.com","password":"admin"}' \
+     http://localhost:3030/authentication
+```
+
 ## License
 
 Copyright (c) 2016
