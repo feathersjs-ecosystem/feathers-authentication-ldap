@@ -69,10 +69,10 @@
     "feathers-hooks": "^1.7.0",
     "feathers": "^2.0.2",
     "istanbul": "^1.1.0-alpha.1",
-    "sinon": "^1.17.6",
+    "sinon": "^2.1.0",
     "mocha": "^3.2.0",
     "rimraf": "^2.5.4",
-    "semistandard": "^9.2.1",
+    "semistandard": "^10.0.0",
     "sinon-chai": "^2.8.0"
   }
 }
