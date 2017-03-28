@@ -53,7 +53,7 @@
   },
   "dependencies": {
     "debug": "^2.3.3",
-    "passport-ldapauth": "^0.6.0"
+    "passport-ldapauth": "^1.0.0"
   },
   "devDependencies": {
     "babel-cli": "^6.18.0",
