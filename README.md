@@ -1,5 +1,7 @@
 # feathers-authentication-ldap
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/feathersjs/feathers-authentication-ldap.svg)](https://greenkeeper.io/)
+
 [![Build Status](https://travis-ci.org/feathersjs/feathers-authentication-ldap.png?branch=master)](https://travis-ci.org/feathersjs/feathers-authentication-ldap)
 [![Code Climate](https://codeclimate.com/github/feathersjs/feathers-authentication-ldap/badges/gpa.svg)](https://codeclimate.com/github/feathersjs/feathers-authentication-ldap)
 [![Test Coverage](https://codeclimate.com/github/feathersjs/feathers-authentication-ldap/badges/coverage.svg)](https://codeclimate.com/github/feathersjs/feathers-authentication-ldap/coverage)
