@@ -55,7 +55,7 @@
     "debug": "^2.3.3",
     "lodash.merge": "^4.6.0",
     "lodash.omit": "^4.5.0",
-    "passport-ldapauth": "^1.0.0"
+    "passport-ldapauth": "^2.0.0"
   },
   "devDependencies": {
     "babel-cli": "^6.18.0",
