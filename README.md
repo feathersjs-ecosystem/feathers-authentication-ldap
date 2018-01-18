@@ -51,7 +51,34 @@ It will also mix in the following defaults, which should be customized.
 ### LDAP Verifier class
 
 The `Verifier` class has a `verify` function that is the passport verify callback. In this module it gets called after LDAP authentication succeeds. By default it does nothing but you can overwrite it to make furthers validation
-checks. See [examples/app.js](examples/app.js#L56). 
+checks. See [examples/app.js](examples/app.js#L56).
+
+
+### Asynchronous LDAP Strategy configuration
+
+Per request configuration of the LDAP strategy is supported by taking advantage of
+the passport-ldapauth [asynchronous configuration retrieval](https://github.com/vesse/passport-ldapauth#asynchronous-configuration-retrieval)
+feature.
+
+In place of the options a function can be passed when initializing the feathers-authentication-ldap
+module. This function will be called with the authentication request object and it should
+return a promise that resolves the altered options. These altered options will be merged with
+the default and static settings.
+
+I.E. The credentials passed in an authentication request can be used as the bind credentials
+in an Active Directory setup that does not include common bind credentials...
+
+```javascript
+app.configure(authentication(config))
+.configure(jwt())
+.configure(local())
+.configure(ldap( function (req) {
+  return new Promise(function (resolve, reject) {
+    resolve({ server: { bindDn: req.body.username, bindCredentials: req.body.password } });
+  });
+}));
+```
+
 
 ### Usage with `feathers-authentication-jwt`
 
@@ -59,11 +86,11 @@ To authenticate following requests using the jwt use `feathers-authentication-jw
 
 To get rid of this dependency and store necessary data in the JWT payload see
 [examples/app.js](examples/app.js#L47) and [examples/app.js](examples/app.js#L79).
- 
+
 
 ## Simple Example
 
-Here's an example of a Feathers server that uses `feathers-authentication-ldap`. 
+Here's an example of a Feathers server that uses `feathers-authentication-ldap`.
 
 ```js
 const feathers = require('feathers');
