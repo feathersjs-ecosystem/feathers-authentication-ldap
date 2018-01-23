@@ -8,7 +8,7 @@ const feathers = require('feathers');
 const authentication = require('feathers-authentication');
 const passportLdap = require('passport-ldapauth');
 
-const { expect } = chai;
+const expect = chai.expect;
 
 chai.use(sinonChai);
 
