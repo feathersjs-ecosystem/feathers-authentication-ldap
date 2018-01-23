@@ -1,12 +1,15 @@
 /* eslint-disable no-unused-expressions */
 
-import chai, {expect} from 'chai';
-import sinon from 'sinon';
-import sinonChai from 'sinon-chai';
-import ldapAuth from '../src';
-import feathers from 'feathers';
-import authentication from 'feathers-authentication';
-import passportLdap from 'passport-ldapauth';
+const chai = require('chai');
+const sinon = require('sinon');
+const sinonChai = require('sinon-chai');
+const ldapAuth = require('../lib');
+const feathers = require('feathers');
+const authentication = require('feathers-authentication');
+const passportLdap = require('passport-ldapauth');
+
+const { expect } = chai;
+
 chai.use(sinonChai);
 
 describe('feathers-authentication-ldap', () => {
