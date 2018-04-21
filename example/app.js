@@ -13,7 +13,7 @@ const app = feathers();
 
 // Load configuration, usually done by feathers-configuration
 app.set('auth', {
-  secret: "super secret",
+  secret: 'super secret',
   ldap: {
     server: {
       url: 'ldap://localhost:389',
@@ -27,12 +27,12 @@ app.set('auth', {
 });
 
 class CustomVerifier {
-  verify(req, user, done) {
+  verify (req, user, done) {
     // ldap auth was successful
     console.log('LDAP User:', user);
 
     // add custom verification logic
-    if(true) {
+    if (true) {
       return done(null, user, {username: req.body.username});
     } else {
       const err = new errors.Forbidden('Youre are not allowed');
@@ -65,14 +65,13 @@ app.configure(rest())
 
   .use(errorHandler());
 
-
 // Authenticate the user using the LDAP strategy
 // and if successful return a JWT.
 app.service('authentication').hooks({
   before: {
     create: [
       auth.hooks.authenticate('ldap'),
-      function(hook) {
+      function (hook) {
         // store some user data in JWT payload
         hook.data.payload = {
           uid: hook.params.user.uid,
