@@ -13,7 +13,7 @@ const app = feathers();
 
 // Load configuration, usually done by feathers-configuration
 app.set('auth', {
-  secret: "super secret",
+  secret: 'super secret',
   ldap: {
     server: {
       url: 'ldap://localhost:389',
@@ -32,7 +32,8 @@ class CustomVerifier {
     console.log('LDAP User:', user);
 
     // add custom verification logic
-    if(true) {
+    let valid = true;
+    if (valid) {
       return done(null, user, {username: req.body.username});
     } else {
       const err = new errors.Forbidden('Youre are not allowed');

@@ -51,7 +51,7 @@ It will also mix in the following defaults, which should be customized.
 ### LDAP Verifier class
 
 The `Verifier` class has a `verify` function that is the passport verify callback. In this module it gets called after LDAP authentication succeeds. By default it does nothing but you can overwrite it to make furthers validation
-checks. See [examples/app.js](examples/app.js#L56). 
+checks. See [examples/app.js](examples/app.js#L56).
 
 ### Usage with `feathers-authentication-jwt`
 
@@ -59,11 +59,80 @@ To authenticate following requests using the jwt use `feathers-authentication-jw
 
 To get rid of this dependency and store necessary data in the JWT payload see
 [examples/app.js](examples/app.js#L47) and [examples/app.js](examples/app.js#L79).
- 
+
+
+### Asynchronous LDAP Strategy configuration
+
+Per request configuration of the LDAP strategy is supported by taking advantage of
+the passport-ldapauth [asynchronous configuration retrieval](https://github.com/vesse/passport-ldapauth#asynchronous-configuration-retrieval)
+feature.
+
+This makes it possible to adjust the LDAP settings based on the authentication
+request. I.E. An Active Directory server that uses the user's authentication
+credentials for binding in place of an anonymous user can leverage this feature
+by setting the server bind credentials to the credentials provided in the
+authentication request.
+
+To use the asynchronous settings method you include the _asyncOptions_ parameter
+when configuring the ldap strategy in the authentication service. The _asyncOptions_
+parameter should be set to a function that accepts the authentication request object
+and returns a new object with settings that should be merged into the ldap
+settings.
+
+#### Example asyncOptions implementation in authentication service
+
+```javascript
+/*
+Given the following authentication strategy configuration...
+
+"authentication": {
+  "ldap": {
+    "server": {
+      "url": "ldap://<your Active Directory server>/",
+      "searchBase": "cn=users,dc=<your Active Directory domain>,dc=local",
+      "searchFilter": "(|(userPrincipalName={{username}})(sAMAccountName={{username}}))",
+      "searchAttributes": null
+    }
+  }
+},
+*/
+
+const authentication = require('@feathersjs/authentication')
+const jwt = require('@feathersjs/authentication-jwt')
+const local = require('@feathersjs/authentication-local')
+const ldap = require('feathers-authentication-ldap')
+
+module.exports = (app) => {
+  app
+  .configure(authentication(app.get('authentication')))
+  .configure(jwt())
+  .configure(local())
+  // user credentials in authentication request used as the server bind credentials in ldap
+  .configure(ldap({
+    asyncOptions: req => ({ server: { bindDn: req.body.username, bindCredentials: req.body.password } })
+  }))
+
+  app.service('authentication').hooks({
+    before: {
+      create: [
+        authentication.hooks.authenticate(['ldap', 'local', 'jwt'])
+      ]
+    }
+  });
+
+  app.hooks({
+    before: {
+      all: [authentication.hooks.authenticate('jwt')]
+    }
+  });
+
+}
+```
+
 
 ## Simple Example
 
-Here's an example of a Feathers server that uses `feathers-authentication-ldap`. 
+Here's an example of a Feathers server that uses `feathers-authentication-ldap`.
 
 ```js
 const feathers = require('feathers');
