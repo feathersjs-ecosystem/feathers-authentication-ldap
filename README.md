@@ -87,12 +87,14 @@ Given the following authentication strategy configuration...
 
 "authentication": {
   "ldap": {
+    "name": "ldap",
     "server": {
       "url": "ldap://<your Active Directory server>/",
       "searchBase": "cn=users,dc=<your Active Directory domain>,dc=local",
       "searchFilter": "(|(userPrincipalName={{username}})(sAMAccountName={{username}}))",
       "searchAttributes": null
-    }
+    },
+    "passRequestToCallback": true
   }
 },
 */
@@ -151,13 +153,15 @@ const app = feathers();
 app.set('auth', {
   secret: "super secret",
   ldap: {
+    name: 'ldap',
     server: {
       url: 'ldap://localhost:389',
       bindDn: 'cn=anonymous',
       bindCredentials: '', // bindpw
       searchBase: 'dc=de',
       searchFilter: '(uid={{username}})'
-    }
+    },
+    passRequestToCallback: true
   }
 });
 
