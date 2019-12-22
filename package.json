@@ -64,7 +64,7 @@
     "feathers-hooks": "^2.0.0",
     "feathers": "^2.0.2",
     "istanbul": "^1.1.0-alpha.1",
-    "sinon": "^7.2.4",
+    "sinon": "^8.0.0",
     "mocha": "^6.0.0",
     "semistandard": "^13.0.0",
     "sinon-chai": "^3.0.0"
